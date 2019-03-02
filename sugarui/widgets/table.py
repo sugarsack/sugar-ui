@@ -9,9 +9,9 @@ import npyscreen.wgwidget
 from sugarui.widgets.textfields import ColoredTextField
 
 
-class TableHeader(npyscreen.wgwidget.Widget):
+class TableUtilMixin:
     """
-    Table header.
+    Mix-in for common utilities.
     """
     C_HR_L = "\u2501"
     C_VR_L = "\u2503"
@@ -20,26 +20,13 @@ class TableHeader(npyscreen.wgwidget.Widget):
     C_V_HALF_DOWN = "\u2577"
     C_B_HALF_DOWN = "\u2584"
 
-    def __init__(self, *args, headers=None, **kwargs):
-        """
-        Table header.
-
-        :param args: npyscreen-related
-        :param headers: List of strings
-        :param kwargs: npyscreen-related
-        """
-        npyscreen.wgwidget.Widget.__init__(self, *args, **kwargs)
-        self.max_height = 1
-        self._headers = headers
-        self._min_width = (len(self._headers) * 6) + (len(self._headers) - 2)
-
     def _get_cell_width(self):
         """
         Return max inner width of the cell.
 
         :return:
         """
-        return (self.width - len(self._headers) - 3) // len(self._headers)
+        return (self.width - self._columns - 3) // self._columns
 
     def _fit_text_in_cell(self, text):
         """
@@ -61,6 +48,25 @@ class TableHeader(npyscreen.wgwidget.Widget):
 
         return text
 
+
+class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
+    """
+    Table header.
+    """
+    def __init__(self, *args, headers=None, **kwargs):
+        """
+        Table header.
+
+        :param args: npyscreen-related
+        :param headers: List of strings
+        :param kwargs: npyscreen-related
+        """
+        npyscreen.wgwidget.Widget.__init__(self, *args, **kwargs)
+        self.max_height = 1
+        self._headers = headers
+        self._columns = len(self._headers)
+        self._min_width = (len(self._headers) * 6) + (len(self._headers) - 2)
+
     def update(self, clear=True):
         if clear: self.clear()
         if self.hidden:
@@ -70,7 +76,7 @@ class TableHeader(npyscreen.wgwidget.Widget):
         name = []
         for idx, header in enumerate(self._headers):
             name.append(self._fit_text_in_cell(header))
-            if idx + 1 < len(self._headers):
+            if idx + 1 < self._columns:
                 name.append(self.C_V_HALF_DOWN)
         name.append(" ")
         name = "".join(name).strip().ljust(self.width - 1).rjust(self.width)
@@ -86,7 +92,7 @@ class Table(npyscreen.MultiLineAction):
     """
     Table view.
     """
-    def __init__(self, *args, **keywords):
+    def __init__(self, *args, columns=0, **keywords):
         self.cell_highlight_map = {
             "offline": "CRITICAL",
             "online": "IMPORTANT",
