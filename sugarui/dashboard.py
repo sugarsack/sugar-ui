@@ -103,15 +103,19 @@ class Dashboard(MainForm):
 
     def on_help(self, *arga, **kwargs):
         height, width = self.useable_space()
-        text = """
-This is a help text. Live with this. Something needs to be written here very long and something not.
-Another retarded paragraph here is.
+        text = """Sugar Dashboard, v0.0.0
 
-And some sentance:
+Dashboard UI allows you to see the status of the jobs, their history, navigate between configured states, call modules on the machines and more.
 
-   {b}h{r}: to Help
-  ^Q: to quit
+To navigate current space, use TAB key. To switch between the screens, use ^X to invoke menu.
 
+On each table:
+
+  l       - To filter items (pop-up).
+            On the pop-up you can press "n" for
+            next item, "p" for the previous item.
+
+  Up/Down - To go up/down on the items.
         """.format(b=curses.A_BOLD, r=curses.A_NORMAL)
         HelpForm(text, width, height, name="Help").edit()
 
