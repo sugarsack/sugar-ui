@@ -4,6 +4,7 @@ Floating forms
 """
 import textwrap
 import npyscreen
+from sugarui.widgets.utils import make_button_label
 
 
 class HelpForm(npyscreen.fmActionFormV2.ActionFormV2):
@@ -59,7 +60,7 @@ class HelpForm(npyscreen.fmActionFormV2.ActionFormV2):
 
         :return:
         """
-        label = "< Close >"
+        label = make_button_label("Close")
         self._add_button('ok_button', self.__class__.OKBUTTON_TYPE, label,
                          0 - self.__class__.OK_BUTTON_BR_OFFSET[0],
                          0 - self.__class__.OK_BUTTON_BR_OFFSET[1] - len(label), None)
