@@ -7,18 +7,21 @@ import npyscreen
 import npyscreen.wgwidget
 from sugarui.widgets.textfields import ColoredTextField
 
+npyscreen.wgmultiline.MORE_LABEL = " \u25B8\u25B8\u25B8 More \u21B4"
+
 
 class TableUtilMixin:
     """
     Mix-in for common utilities.
     """
-    C_LHB_DOWN = "\u2501"         # "━"
-    C_LVB_FULL = "\u2503"     # "┃"
-    C_LHB_CELL = "\u252f"         # "┯"
-    C_ELPS = "\u2026"         # "..."
+    C_LHB_DOWN = "\u2501"       # "━"
+    C_LVB_FULL = "\u2503"       # "┃"
+    C_LHB_CELL = "\u252f"       # "┯"
+    C_ELPS = "\u2026"           # "..."
     C_LVT_HALF_DOWN = "\u2577"  # "╷"
-    C_BF_HALF_DOWN = "\u2584"  # "▄"
-    C_LVT_FULL = "\u2502"     # "│"
+    C_BF_FULL = "\u2588"      # "█"
+    C_BF_HALF_DOWN = "\u2584"   # "▄"
+    C_LVT_FULL = "\u2502"       # "│"
 
     def _get_cell_width(self):
         """
@@ -47,6 +50,42 @@ class TableUtilMixin:
         text = text.ljust(cell_width)
 
         return text
+
+
+class TableDivider(npyscreen.wgwidget.Widget, TableUtilMixin):
+    """
+    Vertical table divider.
+    """
+    def __init__(self, *args, header=True, **kwargs):
+        self._header = int(bool(header))  # Usually tables has a header (TableHeader).
+                                          # Header has some details on top. If no header specified,
+                                          # divider will be painted as just plain vertical divider.
+        kwargs["max_width"] = 1
+        npyscreen.wgwidget.Widget.__init__(self, *args, **kwargs)
+
+    def update(self, clear=True):
+        """
+        Widget redraw updates.
+
+        :param clear:
+        :return:
+        """
+        color = curses.color_pair(5)
+
+        div = self.C_LVB_FULL
+        if self._header:
+            v_start_offset = 2
+            self.add_line(self.rely, self.relx, self.C_BF_HALF_DOWN,
+                          self.make_attributes_list(self.C_BF_HALF_DOWN, color), 1)
+            self.add_line(self.rely + 1, self.relx, div,
+                          self.make_attributes_list(div, color | curses.A_REVERSE), 1)
+        else:
+            v_start_offset = 0
+
+        div = self.C_LVB_FULL
+        for y_offset in range(self.height - v_start_offset - 1):
+            self.add_line(self.rely + y_offset + v_start_offset,
+                          self.relx, div, self.make_attributes_list(div, color), 1)
 
 
 class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
@@ -102,11 +141,8 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
     """
     Table view.
     """
-    def __init__(self, *args, **keywords):
-        self.cell_highlight_map = {
-            "offline": "CRITICAL",
-            "online": "IMPORTANT",
-        }
+    def __init__(self, *args, highlight_map=None, **keywords):
+        self.cell_highlight_map = highlight_map or {}
         self._columns = 0
         super(Table, self).__init__(*args, **keywords)
         self.values = []
