@@ -14,4 +14,4 @@ class SugarUI(npyscreen.StandardApp):
     Sugar UI class.
     """
     def onStart(self):
-        self.addForm(Dashboard.id, Dashboard, name="Dashboard")
+        self.addForm(Dashboard.id, Dashboard, name="Sugar Dashboard, v0.0.0")
