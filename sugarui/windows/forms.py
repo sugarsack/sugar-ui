@@ -38,6 +38,18 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         self.init()
         self.create_menu()
 
+    def draw_form(self):
+        """
+        Draw form main canvas.
+
+        :return:
+        """
+        super(npyscreen.FormBaseNewWithMenus, self).draw_form()
+        menu_advert = " " + self.__class__.MENU_KEY + ": Menu, ^Q: Quit "
+        y, x = self.display_menu_advert_at()
+        self.add_line(y, x, menu_advert, self.make_attributes_list(menu_advert, curses.color_pair(5)),
+                      self.columns - x - 1)
+
     def widget_useable_space(self, rely=0, relx=0):
         """
         Allow more width than usual.
