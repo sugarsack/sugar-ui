@@ -29,7 +29,7 @@ class HelpForm(npyscreen.fmActionFormV2.ActionFormV2):
 
         self.preserve_selected_widget = True
         self._pager = self.add(npyscreen.wgmultiline.Pager, autowrap=autowrap,
-                       editable=False, color=self.COLOR, widgets_inherit_color=True)
+                       editable=True, color=self.COLOR, widgets_inherit_color=True)
         self._pager.values = self._set_text(text, autowrap)
 
     def _set_text(self, text, autowrap):
