@@ -7,8 +7,7 @@ import curses
 
 from sugarui.widgets.progressbar import ProgressBar
 from sugarui.widgets.table import Table, TableHeader, TableDivider
-from sugarui.windows.forms import MainForm
-from sugarui.windows.floating import HelpForm
+from sugarui.windows.forms import SugarForm
 
 
 class FormData:
@@ -17,7 +16,7 @@ class FormData:
     """
 
 
-class Dashboard(MainForm):
+class Dashboard(SugarForm):
     """
     Dashboard form.
     """
@@ -33,20 +32,10 @@ class Dashboard(MainForm):
 
         :return:
         """
-        # Shortcuts
-        self.handlers.update({
-            "^Q": self.on_exit,
-            "h": self.on_help,
-            "?": self.on_help,
-        })
-
         self.f_state_process = FormData()
         self.f_systems_overview = FormData()
         self.f_modules_run = FormData()
         self.f_state_run = FormData()
-
-        # Menu
-        self.create_menu()
 
         # Widgets
         cell_highlight_map = {
@@ -81,45 +70,9 @@ class Dashboard(MainForm):
             data.append((time.strftime("%T, %D"),))
         self.f_state_process.w_jobs_pane.load_data(data)
 
-    def create_menu(self):
-        """
-        Create menus
-
-        :return:
-        """
-        self.w_root_menu = self.add_menu(name="Main", shortcut="^M")
-        self.w_root_menu.addItemsFromList([
-            ("Display Text".ljust(30), None, "a"),
-            ("Just beep".ljust(30), self.on_beep, "^E"),
-            ("Exit".ljust(30), self.on_exit, "^Q"),
-        ])
-
     def on_beep(self):
         curses.beep()
         import time
         for x in range(100):
             self.f_state_process.w_progressbar.set_value(x + 1)
             time.sleep(0.01)
-
-    def on_help(self, *arga, **kwargs):
-        height, width = self.useable_space()
-        text = """Sugar Dashboard, v0.0.0
-
-Dashboard UI allows you to see the status of the jobs, their history, navigate between configured states, call modules on the machines and more.
-
-To navigate current space, use TAB key. To switch between the screens, use ^X to invoke menu.
-
-On each table:
-
-  l       - To filter items (pop-up).
-            On the pop-up you can press "n" for
-            next item, "p" for the previous item.
-
-  Up/Down - To go up/down on the items.
-        """.format(b=curses.A_BOLD, r=curses.A_NORMAL)
-        HelpForm(text, width, height, name="Help").edit()
-
-    def on_exit(self, *args, **kwargs):
-        self.editing = False
-        self.parentApp.switchFormNow()
-        sys.exit(1)
