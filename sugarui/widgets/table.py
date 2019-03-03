@@ -2,7 +2,6 @@
 """
 Table display
 """
-import time
 import curses
 import npyscreen
 import npyscreen.wgwidget
@@ -54,7 +53,7 @@ class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
     """
     Table header.
     """
-    def __init__(self, *args, headers=None, **kwargs):
+    def __init__(self, *args, headers=None, color=5, title=None, **kwargs):
         """
         Table header.
 
@@ -67,6 +66,11 @@ class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
         self._headers = headers
         self._columns = len(self._headers)
         self._min_width = (len(self._headers) * 6) + (len(self._headers) - 2)
+        self._color = color
+        if title:
+            self._title = " {} ".format(title)
+        else:
+            self._title = None
 
     def update(self, clear=True):
         if clear: self.clear()
@@ -83,10 +87,15 @@ class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
         name = "".join(name).strip().ljust(self.width - 1).rjust(self.width)
         color = curses.color_pair(5)  # Already curses-initialised pair. 0-9 normal, 10-20 are bold
         self.add_line(self.rely + 1, self.relx, name,
-                      self.make_attributes_list(name, curses.A_REVERSE | curses.A_BOLD | color), self.width - 1)
+                      self.make_attributes_list(name, curses.A_REVERSE | curses.A_NORMAL | color), self.width - 1)
 
         name = self.C_BF_HALF_DOWN * (self.width - 1)
         self.add_line(self.rely, self.relx, name, self.make_attributes_list(name, color), self.width)
+
+        # Title
+        if self._title:
+            self.add_line(self.rely, self.relx + 1, self._title,
+                          self.make_attributes_list(self._title, curses.color_pair(5)), 20)
 
 
 class Table(npyscreen.MultiLineAction, TableUtilMixin):
@@ -152,7 +161,7 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
         """
         Display value formatter.
 
-        :param val:
+        :param row_data: a list of objects in the cell.
         :return:
         """
         if self._columns:
@@ -165,8 +174,8 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
                 cell.append(self._fit_text_in_cell(value))
             cell = self.C_LVT_FULL.join(cell).ljust(self.max_width)
         else:
-            cell = str(row_data).ljust(self.max_width)
-        return cell
+            cell = str(row_data)
+        return cell.ljust(self.width)
 
     def make_contained_widgets(self):
         """
@@ -180,7 +189,3 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
                 relx=self.relx, max_width=self.width, max_height=self.__class__._contained_widget_height)
             row_widget.highlight_map = self.cell_highlight_map
             self._my_widgets.append(row_widget)
-
-
-class TitledTable(npyscreen.BoxTitle):
-    _contained_widget = Table
