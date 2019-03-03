@@ -38,6 +38,17 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         self.init()
         self.create_menu()
 
+    def widget_useable_space(self, rely=0, relx=0):
+        """
+        Allow more width than usual.
+
+        :param rely:
+        :param relx:
+        :return:
+        """
+        mxy, mxx = self.useable_space(rely=rely, relx=relx)
+        return mxy - 3, mxx
+
     def init(self):
         """
         Create form.
@@ -56,10 +67,21 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         menu = []
         for form_data in self.parentApp._forms:
             fid, title, shortcut, action = [form_data[0]] + list(form_data[4:])
+            # TODO: Add submenus here
             if self.id != fid:
                 self._form_id_map[action] = fid
                 menu.append((title.ljust(30), getattr(self, action), shortcut))
+        menu.append(("Help".ljust(30), self.on_help, "h"))
+        menu.append(("Exit".ljust(30), self.on_exit, "^Q"))
         self.w_root_menu.addItemsFromList(menu)
+
+    def create_submenu(self):
+        """
+        This includes a submenu for the current form.
+
+        :return:
+        """
+        # Override me and return a submenu object
 
     def on_load_systemoverviewform(self):
         """

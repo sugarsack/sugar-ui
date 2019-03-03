@@ -51,7 +51,7 @@ class Dashboard(SugarForm):
         self.add(TableHeader, title="Result Details", headers=["Hostname", "Status", "Finished"],
                  color=3, relx=42, max_height=2, rely=1)
         self.f_state_process.w_clients_pane = self.add(Table, relx=42, rely=3, highlight_map=cell_highlight_map)
-        self.f_state_process.w_progressbar = self.add(ProgressBar, name="Progress", relx=43,
+        self.f_state_process.w_progressbar = self.add(ProgressBar, name="Progress", relx=42,
                                                       editable=False, max_height=3)
         self.load_sample_data()
 
