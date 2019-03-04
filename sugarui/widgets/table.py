@@ -19,8 +19,9 @@ class TableUtilMixin:
     C_LHB_CELL = "\u252f"       # "┯"
     C_ELPS = "\u2026"           # "..."
     C_LVT_HALF_DOWN = "\u2577"  # "╷"
-    C_BF_FULL = "\u2588"      # "█"
+    C_BF_FULL = "\u2588"        # "█"
     C_BF_HALF_DOWN = "\u2584"   # "▄"
+    C_BF_SX_DOWN = "\u2582"     # "▂"
     C_LVT_FULL = "\u2502"       # "│"
 
     def _get_cell_width(self):
@@ -75,8 +76,8 @@ class TableDivider(npyscreen.wgwidget.Widget, TableUtilMixin):
         div = self.C_LVB_FULL
         if self._header:
             v_start_offset = 2
-            self.add_line(self.rely, self.relx, self.C_BF_HALF_DOWN,
-                          self.make_attributes_list(self.C_BF_HALF_DOWN, color), 1)
+            self.add_line(self.rely, self.relx, self.C_BF_SX_DOWN,
+                          self.make_attributes_list(self.C_BF_SX_DOWN, color), 1)
             self.add_line(self.rely + 1, self.relx, div,
                           self.make_attributes_list(div, color | curses.A_REVERSE), 1)
         else:
@@ -128,7 +129,7 @@ class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
         self.add_line(self.rely + 1, self.relx, name,
                       self.make_attributes_list(name, curses.A_REVERSE | curses.A_NORMAL | color), self.width - 1)
 
-        name = self.C_BF_HALF_DOWN * (self.width - 1)
+        name = self.C_BF_SX_DOWN * (self.width - 1)
         self.add_line(self.rely, self.relx, name, self.make_attributes_list(name, color), self.width)
 
         # Title
