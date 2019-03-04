@@ -37,6 +37,8 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         # otherwise events don't see the widgets.
         self.init()
         self.create_menu()
+        self.refresh()  # npyscreen has no layout packer like e.g. urwid.Pile at all. So on resize shift happens...
+                        # In this case all the auto-positioning and resizing happening manually at overridden refresh.
 
     def draw_form(self):
         """
@@ -59,7 +61,7 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         :return:
         """
         mxy, mxx = self.useable_space(rely=rely, relx=relx)
-        return mxy - 3, mxx
+        return mxy - 1, mxx
 
     def init(self):
         """
@@ -95,7 +97,7 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         """
         # Override me and return a submenu object
 
-    def on_load_systemoverviewform(self):
+    def on_load_systemoverviewform(self, *args, **kwargs):
         """
         On load system overview.
 
@@ -103,7 +105,7 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         """
         self.parentApp.switchForm(self._form_id_map["on_load_systemoverviewform"])
 
-    def on_load_dashboard(self):
+    def on_load_dashboard(self, *args, **kwargs):
         """
         On load dashboard.
 
@@ -111,7 +113,23 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         """
         self.parentApp.switchForm(self._form_id_map["on_load_dashboard"])
 
-    def on_exit(self):
+    def on_load_statemanagerform(self, *args, **kwargs):
+        """
+        On load state manager form.
+
+        :return:
+        """
+        self.parentApp.switchForm(self._form_id_map["on_load_statemanagerform"])
+
+    def on_load_modulerunnerform(self, *args, **kwargs):
+        """
+        On load module runner form.
+
+        :return:
+        """
+        self.parentApp.switchForm(self._form_id_map["on_load_modulerunnerform"])
+
+    def on_exit(self, *args, **kwargs):
         self.editing = False
         self.parentApp.switchFormNow()
         sys.exit(1)
@@ -129,7 +147,11 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
 
 Dashboard UI allows you to see the status of the jobs, their history, navigate between configured states, call modules on the machines and more.
 
-To navigate current space, use TAB key. To switch between the screens, use ^X to invoke menu.
+To navigate current space, use:
+
+  TAB, ^N - To select next control.
+  ^P      - To select previous control.
+  ^X      - For main menu invocation.
 
 On each table:
 
