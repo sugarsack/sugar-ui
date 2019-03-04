@@ -5,7 +5,7 @@ Module runner
 import npyscreen
 from sugarui.windows.forms import SugarForm
 from sugarui.widgets.table import TableHeader, Table, TableDivider
-from sugarui.widgets.tabs import TabButton, TabGroup
+from sugarui.widgets.tabs import TabButton, TabGroup, TabGroupBase
 
 
 class ModuleRunnerForm(SugarForm):
@@ -16,7 +16,7 @@ class ModuleRunnerForm(SugarForm):
 
     def init(self):
         h, w = self.useable_space()
-        self.w_clients_list_header = self.add(TableHeader, title="Selected Clients, ^F: Query",
+        self.w_clients_list_header = self.add(TableHeader, title="Selected Clients",
                                               headers=["Hostname"], max_height=2, max_width=40, rely=1)
         self.w_clients_list = self.add(Table, relx=2, rely=3, max_width=39, max_height=h - 5)
         self.w_clients_div = self.add(TableDivider, relx=41, rely=1, max_width=1)
@@ -25,11 +25,11 @@ class ModuleRunnerForm(SugarForm):
         self.w_query = self.add(npyscreen.Textfield, value="h:{}, w:{}".format(h, w), relx=9, rely=3,
                                 max_height=2, color="STANDOUT")
 
-        group = TabGroup(relx=45, rely=1)
-        group.add_tab(self.add(TabButton, label="One"), callbacks=[(self.on_load_statemanagerform, None, None)])
-        group.add_tab(self.add(TabButton, label="Two"))
-        group.add_tab(self.add(TabButton, label="Three"))
-        group.add_tab(self.add(TabButton, label="Four"))
+        group = TabGroup(self, relx=42, rely=1)
+        group.add_tab(self.add(TabButton, title="One")) #, callbacks=[(self.on_load_statemanagerform, None, None)])
+        group.add_tab(self.add(TabButton, title="Two"))
+        group.add_tab(self.add(TabButton, title="Three"))
+        group.add_tab(self.add(TabButton, title="Four"), label="Something")
         group.align()
 
         self.load_sample_data()
