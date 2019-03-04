@@ -8,6 +8,8 @@ and run as a sub-app from the nested command-line.
 import npyscreen
 from sugarui.dashboard import Dashboard
 from sugarui.windows.sysoverview import SystemOverviewForm
+from sugarui.windows.statemanager import StateManagerForm
+from sugarui.windows.modrunner import ModuleRunnerForm
 
 
 class SugarUI(npyscreen.StandardApp):
@@ -64,4 +66,8 @@ class SugarUI(npyscreen.StandardApp):
                            title="Dashboard", shortcut="^D", name="Dashboard, v0.0.0")
         self.register_form(SystemOverviewForm.id, SystemOverviewForm,
                            title="System Overview", shortcut="^O", name="System Overview")
+        self.register_form(StateManagerForm.id, StateManagerForm,
+                           title="State Manager", shortcut="^T", name="State Manager")
+        self.register_form(ModuleRunnerForm.id, ModuleRunnerForm,
+                           title="Module Runner", shortcut="^T", name="Module Runner")
         self.init_forms()
