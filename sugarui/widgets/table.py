@@ -61,7 +61,7 @@ class TableDivider(npyscreen.wgwidget.Widget, TableUtilMixin):
                                           # Header has some details on top. If no header specified,
                                           # divider will be painted as just plain vertical divider.
         kwargs["max_width"] = 1
-        npyscreen.wgwidget.Widget.__init__(self, *args, **kwargs)
+        npyscreen.wgwidget.Widget.__init__(self, editable=False, *args, **kwargs)
 
     def update(self, clear=True):
         """
@@ -100,7 +100,7 @@ class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
         :param headers: List of strings
         :param kwargs: npyscreen-related
         """
-        npyscreen.wgwidget.Widget.__init__(self, *args, **kwargs)
+        npyscreen.wgwidget.Widget.__init__(self, editable=False, *args, **kwargs)
         self.max_height = 1
         self._headers = headers
         self._columns = len(self._headers)
@@ -134,7 +134,7 @@ class TableHeader(npyscreen.wgwidget.Widget, TableUtilMixin):
         # Title
         if self._title:
             self.add_line(self.rely, self.relx + 1, self._title,
-                          self.make_attributes_list(self._title, curses.color_pair(5)), 20)
+                          self.make_attributes_list(self._title, curses.color_pair(5) | curses.A_BOLD), self.width)
 
 
 class Table(npyscreen.MultiLineAction, TableUtilMixin):
@@ -192,6 +192,11 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
         :return:
         """
         self.h_select(None)
+
+    # def update(self, clear=True):
+    #     super(Table, self).update(clear=True)
+    #     with open("/tmp/terminal-log", "a") as h:
+    #         h.write("w/h: ({}, {})\n".format(self.width, self.height))
 
     def display_value(self, row_data):
         """
