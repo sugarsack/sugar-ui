@@ -16,9 +16,9 @@ class FormData:
     """
 
 
-class Dashboard(SugarForm):
+class JobManager(SugarForm):
     """
-    Dashboard form.
+    JobManager form.
     """
 
     f_state_process = None
