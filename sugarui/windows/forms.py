@@ -105,13 +105,13 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         """
         self.parentApp.switchForm(self._form_id_map["on_load_systemoverviewform"])
 
-    def on_load_dashboard(self, *args, **kwargs):
+    def on_load_jobmanager(self, *args, **kwargs):
         """
-        On load dashboard.
+        On load job manager.
 
         :return:
         """
-        self.parentApp.switchForm(self._form_id_map["on_load_dashboard"])
+        self.parentApp.switchForm(self._form_id_map["on_load_jobmanager"])
 
     def on_load_statemanagerform(self, *args, **kwargs):
         """
@@ -143,9 +143,9 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
         :return:
         """
         height, width = self.useable_space()
-        text = """Sugar Dashboard, v0.0.0
+        text = """Sugar JobManager, v0.0.0
 
-Dashboard UI allows you to see the status of the jobs, their history, navigate between configured states, call modules on the machines and more.
+JobManager UI allows you to see the status of the jobs, their history, navigate between configured states, call modules on the machines and more.
 
 To navigate current space, use:
 
