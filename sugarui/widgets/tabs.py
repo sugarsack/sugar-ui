@@ -57,7 +57,7 @@ class TabButton(npyscreen.widget.Widget):
 
         self._tab_group.on_tab_select(self.id)
         for callback, args, kwargs in self._callbacks:
-            callback(*args, **kwargs)
+            callback(*(args or []), **(kwargs or {}))
 
     def add_callback(self, callback, *args, **kwargs):
         """
@@ -167,6 +167,109 @@ class TabGroupBase(npyscreen.widget.Widget):
                 self._label, self.parent.theme_manager.findPair(self, self.color) | curses.A_STANDOUT), self.width)
 
 
+class TabController:
+    """
+    Tabs widget controller. Used to switch between tabs.
+    """
+    class TabContainer:
+        """
+        Tab container.
+        """
+        def __init__(self, screen):
+            self.__screen = screen
+            self.__widgets = []
+
+        def add_widget(self, *args, **kwargs):
+            """
+            Add a widget to the tab container:
+
+            Typical npyscreen's way:
+
+                F = npyscreen.Form(....)
+                F.add(npyscreen.Text .....)
+
+            So is translated:
+
+                F = npyscreen.Form(....)
+                group = TabGroup(F)
+                group.get_tab_container(some_id).add_widget(npyscreen.Text ....)
+
+            :param widget:
+            :return:
+            """
+            widget = self.__screen.add(*args, **kwargs)
+            if widget not in self.__widgets:
+                self.__widgets.append(widget)
+            return widget
+
+        def get_widgets(self):
+            """
+            Get widgets in the container.
+
+            :return:
+            """
+            for widget in self.__widgets:
+                yield widget
+
+    def __init__(self, screen):
+        self.__screen = screen
+        self.__tab_widgets_map = {}
+
+    def create_controller(self, tab_id):
+        """
+        Create tab controller for widgets.
+
+        :param tab_id:
+        :return:
+        """
+        self.__tab_widgets_map.setdefault(tab_id, TabController.TabContainer(self.__screen))
+
+    def add(self, tab_id, *args, **kwargs):
+        """
+        Add a widget to a tab.
+
+        :param tab_id:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if tab_id not in self.__tab_widgets_map:
+            raise KeyError("Please first create a tab controller for the ID '{}'.".format(tab_id))
+
+        self.__tab_widgets_map[tab_id].add_widget(self.__screen.add(*args, **kwargs))
+
+    def get_tab(self, tab_id):
+        """
+        Get a tab controller.
+
+        :param tab_id:
+        :return:
+        """
+        return self.__tab_widgets_map[tab_id]
+
+    def show_tab(self, tab_id, *args, **kwargs):
+        """
+        Show widgets on the tab.
+
+        :param tab_id:
+        :return:
+        """
+        # npyscreen always only paints on top. So there is no really "memory" thing.
+        # Thus "clear(True)" means "paint everything over". Thus we need first
+        # paint background everything, then paint what needs to be shown.
+
+        # Hide all first
+        for tid in self.__tab_widgets_map:
+            for widget in self.__tab_widgets_map[tid].get_widgets():
+                widget.hidden = True
+                widget.update(clear=widget.hidden)
+
+        # Now show what needs to be shown
+        for widget in self.__tab_widgets_map[tab_id].get_widgets():
+            widget.hidden = False
+            widget.update()
+
+
 class TabGroup:
     """
     Tab group.
@@ -179,6 +282,7 @@ class TabGroup:
         self.screen = screen
         self.base = self.screen.add(TabGroupBase, tab_group=self, relx=self.relx, rely=self.rely + 1)
         self.__first_init = True
+        self.__tab_controller = TabController(self.screen)
 
     def get_tabs(self):
         """
@@ -189,7 +293,7 @@ class TabGroup:
         for tab, label in self.tabs:
             yield tab
 
-    def add_tab(self, tab: TabButton, label: str = None, callbacks: list = None):
+    def add_tab(self, tid, tab: TabButton, label: str = None, callbacks: list = None):
         """
         Add a tab object to the group.
 
@@ -197,11 +301,24 @@ class TabGroup:
         :param callbacks: list of callbacks. Each callback is a tuple of (func, args, kwargs).
         :return:
         """
+        if not callbacks:
+            callbacks = []
+        callbacks.append((self.__tab_controller.show_tab, tid, None))
         self.tabs.append((tab, label))
+        self.__tab_controller.create_controller(tab_id=tid)
         tab._tab_group = self
         for callback in callbacks or []:
             callback, args, kwargs = callback
             tab.add_callback(callback, args, kwargs)
+
+    def get_tab_container(self, tid):
+        """
+        Get tab by id.
+
+        :param tid:
+        :return:
+        """
+        return self.__tab_controller.get_tab(tab_id=tid)
 
     def align(self):
         """
