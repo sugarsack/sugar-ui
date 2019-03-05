@@ -152,6 +152,18 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
             curses.KEY_ENTER: self.on_view_record,
             10: self.on_view_record,
         })
+        self.__on_select_callbacks = []
+
+    def add_on_select_callback(self, callback):
+        """
+        Add callback on select.
+
+        :param callback:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        self.__on_select_callbacks.append(callback)
 
     def handle_input(self, _input):
         super(Table, self).handle_input(_input)
@@ -193,11 +205,8 @@ class Table(npyscreen.MultiLineAction, TableUtilMixin):
         :return:
         """
         self.h_select(None)
-
-    # def update(self, clear=True):
-    #     super(Table, self).update(clear=True)
-    #     with open("/tmp/terminal-log", "a") as h:
-    #         h.write("w/h: ({}, {})\n".format(self.width, self.height))
+        for callback in self.__on_select_callbacks:
+            callback(self.values[self.value])
 
     def display_value(self, row_data):
         """
