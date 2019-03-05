@@ -79,6 +79,14 @@ class TabButton(npyscreen.widget.Widget):
         """
         self._is_active = state
 
+    def tab_width(self):
+        """
+        Get tab width.
+
+        :return:
+        """
+        return len(self._title) + 2
+
     def update(self, clear=True):
         """
         Update button on the screen.
@@ -111,12 +119,13 @@ class TabGroupBase(npyscreen.widget.Widget):
     """
     Tab group base.
     """
-    def __init__(self, screen, *args, color="GOOD", **kwargs):
+    def __init__(self, screen, tab_group, *args, color="GOOD", **kwargs):
         kwargs["max_height"] = 1
         kwargs["editable"] = False
         npyscreen.widget.Widget.__init__(self, screen, *args, **kwargs)
         self.color = color
         self._label = None
+        self._tab_group = tab_group
 
     def set_label(self, label):
         """
@@ -129,6 +138,17 @@ class TabGroupBase(npyscreen.widget.Widget):
         else:
             self._label = None
 
+    def _get_tabs_width(self):
+        """
+        Summarise tabs widths and spaces between.
+
+        :return:
+        """
+        width = 0
+        for tab in self._tab_group.get_tabs():
+            width += tab.tab_width()
+        return width + self._tab_group.space
+
     def update(self, clear=True):
         line = "\u2588" * self.width
         self.add_line(self.rely, self.relx, line,
@@ -136,7 +156,11 @@ class TabGroupBase(npyscreen.widget.Widget):
 
         line = "\u2582" * self.width
         self.add_line(self.rely - 1, self.relx, line,
-                      self.make_attributes_list(line, self.parent.theme_manager.findPair(self, self.color)), self.width)
+                      self.make_attributes_list(line, self.parent.theme_manager.findPair(self, self.color)), 2)
+        offset = self._get_tabs_width()
+        self.add_line(self.rely - 1, self.relx + offset, line,
+                      self.make_attributes_list(line, self.parent.theme_manager.findPair(self, self.color)),
+                      self.width - offset)
 
         if self._label is not None:
             self.add_line(self.rely, self.relx + self.width - len(self._label), self._label, self.make_attributes_list(
@@ -148,12 +172,22 @@ class TabGroup:
     Tab group.
     """
     def __init__(self, screen, relx, rely, space=3):
-        self._group = []
+        self.tabs = []
         self.space = space
         self.relx = relx
         self.rely = rely
         self.screen = screen
-        self.base = self.screen.add(TabGroupBase, relx=self.relx, rely=self.rely + 1)
+        self.base = self.screen.add(TabGroupBase, tab_group=self, relx=self.relx, rely=self.rely + 1)
+        self.__first_init = True
+
+    def get_tabs(self):
+        """
+        Return tab objects.
+
+        :return:
+        """
+        for tab, label in self.tabs:
+            yield tab
 
     def add_tab(self, tab: TabButton, label: str = None, callbacks: list = None):
         """
@@ -163,7 +197,7 @@ class TabGroup:
         :param callbacks: list of callbacks. Each callback is a tuple of (func, args, kwargs).
         :return:
         """
-        self._group.append((tab, label))
+        self.tabs.append((tab, label))
         tab._tab_group = self
         for callback in callbacks or []:
             callback, args, kwargs = callback
@@ -176,10 +210,16 @@ class TabGroup:
         :return:
         """
         offset = 0
-        for tab, label in self._group:
+        for tab, label in self.tabs:
             tab.rely = self.rely
             tab.relx = self.relx + offset + 1
             offset += tab.width + self.space
+
+        # Pre-select first tab on first init
+        if self.__first_init and self.tabs:
+            tab, label = next(iter(self.tabs))
+            tab._on_tab_select(10)
+            self.__first_init = False
 
     def on_tab_select(self, tab_id):
         """
@@ -188,7 +228,7 @@ class TabGroup:
         :param tab_id:
         :return:
         """
-        for tab, label in self._group:
+        for tab, label in self.tabs:
             if tab.id == tab_id:
                 self.base.set_label(label)
                 tab.set_active(True)
@@ -197,5 +237,5 @@ class TabGroup:
 
         self.base.update()
 
-        for tab, label in self._group:
+        for tab, label in self.tabs:
             tab.update()
