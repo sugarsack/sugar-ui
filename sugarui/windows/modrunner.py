@@ -25,15 +25,6 @@ class ModuleRunnerForm(SugarForm):
                                       max_height=2, color="CAUTION", editable=False)
         self.w_query = self.add(VisualTextField, value="*", relx=9, rely=3)
 
-        group = TabGroup(self, relx=42, rely=1)
-        group.add_tab(self.add(TabButton, title="One"))
-        group.add_tab(self.add(TabButton, title="Two"))
-        group.add_tab(self.add(TabButton, title="Three"), callbacks=[(self.on_load_statemanagerform, None, None)])
-        group.add_tab(self.add(TabButton, title="Four"), label="Something")
-        group.add_tab(self.add(TabButton, title="Five"), label="Fifth tab")
-        group.add_tab(self.add(TabButton, title="And a few words more"), label="This is a very long label here!")
-        group.align()
-
         self.load_sample_data()
 
     def load_sample_data(self):
