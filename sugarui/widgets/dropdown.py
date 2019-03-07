@@ -5,12 +5,11 @@ from a pop-up window below.
 """
 import curses
 import npyscreen
-from sugarui.widgets.textfields import VisualTextField
 
 
 class _DropDownTextItem(npyscreen.Textfield):
     """
-
+    Text item in the drop down list.
     """
     def update(self, clear=True, cursor=True):
         state = curses.A_STANDOUT | curses.A_BOLD | curses.A_DIM if self.editing or self.highlight else curses.A_NORMAL
@@ -72,8 +71,7 @@ class _DropDownPopup(npyscreen.fmForm.FormBaseNew):
         self.callbacks = []
         self.value = False
         self.add(npyscreen.Textfield, value="Select:", relx=2, rely=1, editable=False)
-        values = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "This is up to eleven!"]
-        self.items = self.add(_DropDownItems, color=self.color, values=values, widgets_inherit_color=True)
+        self.items = self.add(_DropDownItems, color=self.color, widgets_inherit_color=True)
         self.items.add_callback(self.on_item_select)
         self.parent = parent
 
@@ -105,10 +103,25 @@ class DropDown(npyscreen.widget.Widget):
     def __init__(self, screen, *args, **kwargs):
         kwargs["screen"] = screen
         kwargs["color"] = "CAUTIONHL"
+        self.label = kwargs.get("label")
+        if self.label:
+            screen.add(npyscreen.Textfield, value=self.label, relx=kwargs["relx"], rely=kwargs["rely"],
+                       max_width=len(self.label) + 1, color="CAUTION", editable=False)
+            kwargs["relx"] = kwargs["relx"] + len(self.label) + 1
         npyscreen.widget.Widget.__init__(self, *args, **kwargs)
         self.screen = screen
         self.handlers[10] = self.on_select
         self.value = None
+        self._dropdown_values = []
+
+    def add_values(self, *values):
+        """
+        Add values to the dropdown.
+
+        :param values:
+        :return:
+        """
+        self._dropdown_values += values
 
     def _field_space(self):
         """
@@ -123,6 +136,10 @@ class DropDown(npyscreen.widget.Widget):
         line = " " * self.width
         self.add_line(self.rely, self.relx, line, self.make_attributes_list(line, color), self.width)
 
+        if self.editing:
+            line = "[\u25BC]"
+            self.add_line(self.rely, self.relx + self.width - 3, line, self.make_attributes_list(line, color), 3)
+
     def update(self, clear=True):
         """
         Update the screen.
@@ -130,6 +147,7 @@ class DropDown(npyscreen.widget.Widget):
         :param clear:
         :return:
         """
+        # TODO: Add "V" and "^" chars at the end of the field (Unicode) to indicate it is a dropdown
         self._field_space()
         state = (curses.A_DIM if self.editing else curses.A_NORMAL) | curses.A_STANDOUT | curses.A_BOLD | curses.A_DIM
         if self.value:
@@ -155,5 +173,6 @@ class DropDown(npyscreen.widget.Widget):
         """
         popup = _DropDownPopup(self, show_atx=self.relx, show_aty=self.rely + 1,
                                lines=10, columns=self.width, color="VERYGOOD")
+        popup.items.values = self._dropdown_values
         popup.add_callback(self.on_return_value)
         popup.edit()
