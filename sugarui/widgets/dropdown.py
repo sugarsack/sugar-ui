@@ -100,11 +100,13 @@ class DropDown(npyscreen.widget.Widget):
     """
     Drop-down.
     """
-    def __init__(self, screen, *args, **kwargs):
+    def __init__(self, screen, *args, label_max_width=None, **kwargs):
         kwargs["screen"] = screen
         kwargs["color"] = "CAUTIONHL"
         self.label = kwargs.get("label")
         if self.label:
+            if label_max_width is not None:
+                self.label = self.label.ljust(label_max_width)[:label_max_width]
             screen.add(npyscreen.Textfield, value=self.label, relx=kwargs["relx"], rely=kwargs["rely"],
                        max_width=len(self.label) + 1, color="CAUTION", editable=False)
             kwargs["relx"] = kwargs["relx"] + len(self.label) + 1
