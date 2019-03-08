@@ -115,6 +115,16 @@ class DropDown(npyscreen.widget.Widget):
         self.handlers[10] = self.on_select
         self.value = None
         self._dropdown_values = []
+        self._callbacks = []
+
+    def add_callback(self, callback):
+        """
+        Add value select callback.
+
+        :param callback:
+        :return:
+        """
+        self._callbacks.append(callback)
 
     def add_values(self, *values):
         """
@@ -164,6 +174,8 @@ class DropDown(npyscreen.widget.Widget):
         :return:
         """
         self.value = value
+        for callback in self._callbacks:
+            callback(self.value)
 
     def on_select(self, *args, **kwargs):
         """
