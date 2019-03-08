@@ -2,7 +2,6 @@
 """
 Compound controllers.
 """
-import curses
 import npyscreen
 from sugarui.widgets.buttons import ClickButton
 from sugarui.windows.floating import HelpForm
