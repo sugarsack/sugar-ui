@@ -41,6 +41,9 @@ class WidgetHelp(npyscreen.widget.Widget):
         self.help_button_width = 8
         self.help_text = help
         kwargs["max_width"] = width - self.help_button_width - 2 - self.relx - self.label_max_width
+
+        if "label" in kwargs:
+            del kwargs["label"]
         self.control_widget = screen.add(widget, *args, **kwargs)
 
         x_offset = width - self.help_button_width
