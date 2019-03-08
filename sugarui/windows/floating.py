@@ -17,9 +17,9 @@ class HelpForm(npyscreen.fmActionFormV2.ActionFormV2):
     SHOW_ATY = 0
     COLOR = "CURSOR_INVERSE"
 
-    def __init__(self, text, width, height, *args, autowrap=False, **kwargs):
-        self.__class__.SHOW_ATX = (width // 2) - (self.DEFAULT_COLUMNS // 2)
-        self.__class__.SHOW_ATY = (height // 2) - (self.DEFAULT_LINES // 2)
+    def __init__(self, text, width, height, *args, autowrap=False, passive_text=False, **kwargs):
+        kwargs["columns"] = width
+        kwargs["lines"] = height
 
         self.value = False
 
@@ -29,7 +29,7 @@ class HelpForm(npyscreen.fmActionFormV2.ActionFormV2):
 
         self.preserve_selected_widget = True
         self._pager = self.add(npyscreen.wgmultiline.Pager, autowrap=autowrap,
-                       editable=True, color=self.COLOR, widgets_inherit_color=True)
+                               editable=not passive_text, color=self.COLOR, widgets_inherit_color=True)
         self._pager.values = self._set_text(text, autowrap)
 
     def _set_text(self, text, autowrap):
