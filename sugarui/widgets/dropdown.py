@@ -5,6 +5,8 @@ from a pop-up window below.
 """
 import curses
 import npyscreen
+from sugarui.widgets.buttons import ClickButton
+
 
 
 class _DropDownTextItem(npyscreen.Textfield):
@@ -70,10 +72,20 @@ class _DropDownPopup(npyscreen.fmForm.FormBaseNew):
         # TODO: override height, so we take more space
         self.callbacks = []
         self.value = False
-        self.add(npyscreen.Textfield, value="Select:", relx=2, rely=1, editable=False)
-        self.items = self.add(_DropDownItems, color=self.color, widgets_inherit_color=True)
+        self.w_select_label = self.add(npyscreen.Textfield, value="Select:", relx=2, rely=1, editable=False)
+
+        noitems_label = "No items to select."
+        self.w_no_items_label = self.add(npyscreen.Textfield, value=noitems_label,
+                                         relx=self.columns // 2 - (len(noitems_label) // 2),
+                                         rely=self.lines // 2 - 1, editable=False)
+
+        self.items = self.add(_DropDownItems, color=self.color, widgets_inherit_color=True, rely=2)
         self.items.add_callback(self.on_item_select)
         self.parent = parent
+
+        self.close_button = self.add(ClickButton, label="Close", width=10,
+                                     relx=self.columns // 2 - 5, rely=self.lines - 2)
+        self.close_button.add_callback(self.on_item_select)
 
     def add_callback(self, callback):
         """
@@ -94,6 +106,25 @@ class _DropDownPopup(npyscreen.fmForm.FormBaseNew):
         for callback in self.callbacks:
             callback(value)
         self.editing = False
+
+    def show(self):
+        """
+        Show form.
+
+        :return:
+        """
+        empty = not self.items.values
+
+        self.items.hidden = empty
+        self.items.update(clear=empty)
+        self.w_select_label.hidden = empty
+        self.w_select_label.update(clear=empty)
+
+        for helper_widget in [self.close_button, self.w_no_items_label]:
+            helper_widget.hidden = not empty
+            helper_widget.update(clear=not empty)
+
+        self.edit()
 
 
 class DropDown(npyscreen.widget.Widget):
@@ -187,6 +218,8 @@ class DropDown(npyscreen.widget.Widget):
         """
         popup = _DropDownPopup(self, show_atx=self.relx, show_aty=self.rely + 1,
                                lines=10, columns=self.width, color="VERYGOOD")
-        popup.items.values = self._dropdown_values
-        popup.add_callback(self.on_return_value)
-        popup.edit()
+        if self._dropdown_values:
+            popup.items.values = self._dropdown_values
+            popup.add_callback(self.on_return_value)
+        popup.show()
+
