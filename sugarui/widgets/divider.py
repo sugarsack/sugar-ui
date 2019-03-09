@@ -73,3 +73,5 @@ class Divider(npyscreen.widget.Widget):
                           self.make_attributes_list(label,
                                                     self.parent.theme_manager.findPair(
                                                         self, self.color) | curses.A_BOLD), len(label))
+        return self
+
