@@ -2,11 +2,52 @@
 """
 Module runner
 """
+import yaml
+import json
 import npyscreen
 from sugarui.windows.forms import SugarForm
 from sugarui.widgets.table import TableHeader, Table, TableDivider
-from sugarui.widgets.tabs import TabButton, TabGroup
 from sugarui.widgets.textfields import VisualTextField
+from sugarui.widgets.dropdown import DropDown
+from sugarui.widgets.compounds import WidgetHelp
+from sugarui.widgets.divider import Divider
+
+
+class ModuleStructure:
+    """
+    Object item that supports module structure elements.
+    """
+    def __init__(self):
+        """
+        :param json_data:
+        """
+        self._json = {}
+
+    def load(self, json_data):
+        """
+        Load JSON data.
+
+        :param json_data:
+        :return:
+        """
+        self._json = json.loads(json_data)
+
+    def get_functions(self):
+        """
+        Get list of all functions.
+
+        :return:
+        """
+        return sorted(self._json.get("tasks", {}).keys())
+
+    def get_function_signature(self, func):
+        """
+        Get signature of the function.
+
+        :param func:
+        :return:
+        """
+        return []
 
 
 class ModuleRunnerForm(SugarForm):
@@ -15,6 +56,11 @@ class ModuleRunnerForm(SugarForm):
     """
     id = __name__
 
+    def __init__(self, *args, **kwargs):
+        SugarForm.__init__(self, *args, **kwargs)
+
+        self._module_form_params = {}
+        self._current_module = ModuleStructure()
     def init(self):
         h, w = self.useable_space()
         self.w_clients_list_header = self.add(TableHeader, title="Selected Clients",
