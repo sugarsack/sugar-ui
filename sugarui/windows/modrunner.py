@@ -42,6 +42,26 @@ class ModuleRunnerForm(SugarForm):
         self.w_clients_list.load_data(data)
         self.w_clients_list.update()
 
+    def on_load_modules(self, *args, **kwargs):
+        """
+        Event is happening on load modules. This is called either on query
+        completion or a single host selection.
+
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        # TODO: call master API to get list of modules.
+
+        # Sample modules
+        values = [
+            "system.test",
+            "system.pkg",
+            "network.utils",
+            "network.routing",
+        ]
+        self.w_modules.add_values(*values)
+
     def refresh(self):
         """
         Recalculate widget sizes and reposition on each refresh.
