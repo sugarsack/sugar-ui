@@ -74,9 +74,84 @@ class ModuleStructure:
         """
         return "{}.{}".format(self._module_id, func), self._json.get("tasks", {}).get(func, {})
 
+
+class ModulesLayouts:
+    """
+    Structure controller for keeping layouts and switching between them.
+    """
+    def __init__(self, y_offset=0):
+        self.__layouts = {}
+        self.__y_offset = y_offset
+
+    def add_module(self, mod_uri):
+        """
+        Add slot for the module.
+
+        :param mod_id:
         :return:
         """
-        return []
+        self.__layouts.setdefault(mod_uri, {})
+
+    def __get_mf(self, uri):
+        """
+        Get module/function from the URI.
+
+        :param uri:
+        :return:
+        """
+        if "." not in uri:
+            raise Exception("Not a function URI")
+
+        mod, func = uri.rsplit(".", 1)
+        return mod, func
+
+    def add_function(self, uri) -> list:
+        """
+        Add function by URI.
+
+        Example: [some.module].[function]
+
+        :param uri:
+        :return: List of widgets for this screen layout
+        """
+        mod, func = self.__get_mf(uri)
+        self.add_module(mod_uri=mod)
+        self.__layouts[mod].setdefault(func, [])
+
+        return self.__layouts[mod][func]
+
+    def add_widget(self, uri, widget):
+        """
+        Add widget to the function by URI.
+
+        :param uri:
+        :param widget:
+        :return:
+        """
+        self.add_function(uri).append(widget)
+
+    def get_next_rel_y(self, uri):
+        """
+        Get a "rely" for the next widget to be placed.
+
+        :return:
+        """
+        return len(self.add_function(uri)) + self.__y_offset
+
+    def get_widgets(self, uri):
+        """
+        Get widgets for the particular module/function by URI.
+
+        :param uri:
+        :return:
+        """
+        mod, func = self.__get_mf(uri)
+        if mod not in self.__layouts:
+            raise Exception("Module '{}' was not registered before".format(mod))
+        elif func not in self.__layouts[mod]:
+            raise Exception("Function '{}' was not registered before".format(func))
+
+        return self.__layouts[mod][func]
 
 
 class ModuleRunnerForm(SugarForm):
