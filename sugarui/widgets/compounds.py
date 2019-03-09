@@ -21,8 +21,7 @@ class WidgetHelp(npyscreen.widget.Widget):
     def __init__(self, screen, widget, help, *args, label_max_width=None, **kwargs):
         self.screen = screen
         kwargs["screen"] = screen
-        kwargs["color"] = "CAUTIONHL"
-        npyscreen.widget.Widget.__init__(self, *args, **kwargs)
+        npyscreen.widget.Widget.__init__(self, editable=False, *args, **kwargs)
 
         self.label = kwargs.get("label")
         if self.label:
