@@ -8,7 +8,6 @@ import npyscreen
 from sugarui.widgets.buttons import ClickButton
 
 
-
 class _DropDownTextItem(npyscreen.Textfield):
     """
     Text item in the drop down list.
@@ -165,6 +164,16 @@ class DropDown(npyscreen.widget.Widget):
         :return:
         """
         self._dropdown_values += values
+
+    def load_values(self, *values):
+        """
+        Remove previous values
+
+        :param values:
+        :return:
+        """
+        self._dropdown_values.clear()
+        self.add_values(*values)
 
     def _field_space(self):
         """
