@@ -49,6 +49,22 @@ class WidgetHelp(npyscreen.widget.Widget):
                                       width=self.help_button_width, max_width=self.help_button_width)
         self.help_button.add_callback(self.on_help_button)
 
+    def set_value(self, value):
+        """
+        This is a helper function that determines how to get to the inner object.
+
+        :param value:
+        :return:
+        """
+        classname = self.control_widget.__class__.__name__
+        if classname in ["VisualTextField", "Textfield", "TitleTextfield"]:
+            self.control_widget.value = str(value)
+        elif classname in ["DropDown"]:
+            self.control_widget.add_values(*[str(item) for item in value])
+        else:
+            raise Exception("Currently '{}' is not supported. "
+                            "Add value directly to the 'control_widget' instance.".format(classname))
+
     def on_help_button(self, keycode):
         """
         On help.
