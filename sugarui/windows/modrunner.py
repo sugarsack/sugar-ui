@@ -4,6 +4,7 @@ Module runner
 """
 import yaml
 import json
+import textwrap
 import npyscreen
 from sugarui.windows.forms import SugarForm
 from sugarui.widgets.table import TableHeader, Table, TableDivider
@@ -22,6 +23,26 @@ class ModuleStructure:
         :param json_data:
         """
         self._json = {}
+        self._module_id = None
+
+    @property
+    def module_id(self):
+        """
+        Module ID.
+
+        :return:
+        """
+        return self._module_id
+
+    @module_id.setter
+    def module_id(self, value):
+        """
+        Set module ID.
+
+        :param value:
+        :return:
+        """
+        self._module_id = value
 
     def load(self, json_data):
         """
@@ -30,7 +51,11 @@ class ModuleStructure:
         :param json_data:
         :return:
         """
+        if not self.module_id:
+            raise Exception("Module ID was not set")
+
         self._json = json.loads(json_data)
+        return self
 
     def get_functions(self):
         """
@@ -40,11 +65,15 @@ class ModuleStructure:
         """
         return sorted(self._json.get("tasks", {}).keys())
 
-    def get_function_signature(self, func):
+    def get_function_signature(self, func) -> tuple:
         """
         Get signature of the function.
 
         :param func:
+        :return: tuple of function URI and its layout
+        """
+        return "{}.{}".format(self._module_id, func), self._json.get("tasks", {}).get(func, {})
+
         :return:
         """
         return []
