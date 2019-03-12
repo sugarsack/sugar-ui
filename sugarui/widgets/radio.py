@@ -71,6 +71,14 @@ class RadioChoice(npyscreen.MultiLine):
         self._my_widgets = []
         npyscreen.MultiLine.__init__(self, *args, **kwargs)
 
+    def get_height(self):
+        """
+        Return actual painted hight.
+
+        :return:
+        """
+        return len(self.values)
+
     def make_contained_widgets(self):
         """
         Fill-in multi-line container.
