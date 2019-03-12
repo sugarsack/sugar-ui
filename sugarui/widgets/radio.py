@@ -62,7 +62,7 @@ class RadioChoice(npyscreen.MultiLine):
     _contained_widgets = None
 
     TYPE_RADIO = 1
-    TYPE_BOOLEAN = 2
+    TYPE_OPTION = 2
 
     def __init__(self, screen, type=TYPE_RADIO, *args, **kwargs):
         self._type = type
