@@ -12,6 +12,7 @@ from sugarui.widgets.textfields import VisualTextField
 from sugarui.widgets.dropdown import DropDown
 from sugarui.widgets.compounds import WidgetHelp
 from sugarui.widgets.divider import Divider
+from sugarui.widgets.radio import RadioChoice
 
 
 class ModuleStructure:
