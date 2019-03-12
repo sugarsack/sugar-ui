@@ -136,7 +136,13 @@ class ModulesLayouts:
 
         :return:
         """
-        return len(self.add_function(uri)) + self.__y_offset
+        rely = 0
+        for widget in self.add_function(uri):
+            if hasattr(widget, "control_widget"): # and widget.control_widget.__class__.__name__ == "RadioChoice":
+                rely += widget.control_widget.height
+            else:
+                rely += 1
+        return rely + self.__y_offset
 
     def get_widgets(self, uri):
         """
