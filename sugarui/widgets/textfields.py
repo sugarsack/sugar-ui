@@ -5,6 +5,7 @@ These are used to display some data in the tables.
 """
 import curses
 import npyscreen
+from sugarui.windows.floating import ErrorMessageForm
 
 
 class ColoredTextField(npyscreen.Textfield):
@@ -135,3 +136,111 @@ class VisualTextField(npyscreen.Textfield):
         self.add_line(self.rely, self.relx, line, self.make_attributes_list(
             line, self.parent.theme_manager.findPair(
                 self, self.color) | curses.A_STANDOUT | curses.A_BOLD | curses.A_DIM), self.width)
+
+
+class RangeVisualTextField(VisualTextField):
+    """
+    Visual text field that supports integer/float ranges.
+    """
+    def __init__(self, screen, value, *args, range=(0, 100), **kwargs):
+        self.range = range
+        self._value = value
+        kwargs["screen"] = screen
+        VisualTextField.__init__(self, *args, **kwargs)
+        self.screen = screen
+
+    def get_value(self):
+        """
+        Get numeric value.
+
+        :return:
+        """
+        if self.value:
+            try:
+                value = (int if "." in self.value else float)(self.value)
+            except ValueError:
+                msg = "Value should be a number."
+                alert = ErrorMessageForm(msg, len(msg) + 6, 6, passive_text=True, name="Error")
+                alert.center_on_display()
+                alert.edit()
+                value = 0
+        else:
+            value = 0
+
+        return value
+
+    def check_value(self):
+        """
+        Check if value is within the range.
+
+        :return:
+        """
+        value = self.get_value()
+        if self.range:
+            low, high = self.range
+            if not low <= value <= high:
+                if not self.editing:
+                    msg = "Value should be within the range from {} to {}.".format(*self.range)
+                    alert = ErrorMessageForm(msg, len(msg) + 6, 6, passive_text=True, name="Error")
+                    alert.center_on_display()
+                    alert.edit()
+
+    def h_exit_down(self, _input):
+        """
+        Exit editing mode downwards.
+
+        :param _input:
+        :return:
+        """
+        super(RangeVisualTextField, self).h_exit_down(_input)
+        self.check_value()
+
+    def h_exit_up(self, _input):
+        """
+        Exit editing mode upwards.
+
+        :param _input:
+        :return:
+        """
+        super(RangeVisualTextField, self).h_exit_up(_input)
+        self.check_value()
+
+    def h_exit_left(self, _input):
+        """
+        Exit editing mode left.
+
+        :param _input:
+        :return:
+        """
+        super(RangeVisualTextField, self).h_exit_left(_input)
+        self.check_value()
+
+    def h_exit_right(self, _input):
+        """
+        Exit editing mode right.
+
+        :param _input:
+        :return:
+        """
+        super(RangeVisualTextField, self).h_exit_right(_input)
+        self.check_value()
+
+    def h_exit_escape(self, _input):
+        """
+        Exit editing mode at ESC key.
+
+        :param _input:
+        :return:
+        """
+        super(RangeVisualTextField, self).h_exit_escape(_input)
+        self.check_value()
+
+    def h_exit_mouse(self, _input):
+        """
+        Exit editing mode at mouse handler clicked elsewhere.
+
+        :param _input:
+        :return:
+        """
+        super(RangeVisualTextField, self).h_exit_mouse(_input)
+        self.check_value()
