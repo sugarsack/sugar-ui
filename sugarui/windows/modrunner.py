@@ -212,6 +212,7 @@ class ModuleRunnerForm(SugarForm):
 
         # Sample modules
         values = [
+            "system.name",  # correct for tests
             "system.test",
             "system.pkg",
             "network.utils",
