@@ -72,3 +72,10 @@ class HelpForm(npyscreen.fmActionFormV2.ActionFormV2):
         :return:
         """
         self.value = True
+
+
+class ErrorMessageForm(HelpForm):
+    """
+    Alert.
+    """
+    COLOR = "CRITICAL"
