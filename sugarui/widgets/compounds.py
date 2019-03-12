@@ -57,10 +57,12 @@ class WidgetHelp(npyscreen.widget.Widget):
         :return:
         """
         classname = self.control_widget.__class__.__name__
-        if classname in ["VisualTextField", "Textfield", "TitleTextfield"]:
+        if classname in ["VisualTextField", "Textfield", "TitleTextfield", "RangeVisualTextField"]:
             self.control_widget.value = str(value)
         elif classname in ["DropDown", "RadioChoice"]:
             self.control_widget.load_values(*[str(item) for item in value])
+        elif classname in ["CheckBox"]:
+            self.control_widget.value = value
         else:
             raise Exception("Currently '{}' is not supported. "
                             "Add value directly to the 'control_widget' instance.".format(classname))
