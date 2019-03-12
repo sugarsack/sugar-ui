@@ -59,8 +59,8 @@ class WidgetHelp(npyscreen.widget.Widget):
         classname = self.control_widget.__class__.__name__
         if classname in ["VisualTextField", "Textfield", "TitleTextfield"]:
             self.control_widget.value = str(value)
-        elif classname in ["DropDown"]:
-            self.control_widget.add_values(*[str(item) for item in value])
+        elif classname in ["DropDown", "RadioChoice"]:
+            self.control_widget.load_values(*[str(item) for item in value])
         else:
             raise Exception("Currently '{}' is not supported. "
                             "Add value directly to the 'control_widget' instance.".format(classname))
