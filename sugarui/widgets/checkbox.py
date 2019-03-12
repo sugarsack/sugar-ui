@@ -15,7 +15,10 @@ class CheckBox(npyscreen.widget.Widget):
     LABEL_NOT_SELECTED = "\u25FB"
 
     def __init__(self, screen, *args, label=None, label_margin=23, **kwargs):
-        kwargs["max_height"] = 1
+        kwargs["max_height"] = kwargs.get("max_height") or 1
+        if kwargs["max_height"] > 2:
+            kwargs["max_height"] = 2
+
         kwargs["screen"] = screen
         npyscreen.widget.Widget.__init__(self, *args, **kwargs)
 
