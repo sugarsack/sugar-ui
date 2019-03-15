@@ -93,21 +93,7 @@ class VisualTextField(npyscreen.Textfield):
                 column += self.find_width_of_char(string_to_print[place_in_string])
                 place_in_string += 1
         else:
-            if self.do_colors():
-                if self.show_bold and self.color == 'DEFAULT':
-                    color = self.parent.theme_manager.findPair(self, 'BOLD') | curses.A_BOLD
-                elif self.show_bold:
-                    color = self.parent.theme_manager.findPair(self, self.color) | curses.A_BOLD
-                elif self.important:
-                    color = self.parent.theme_manager.findPair(self, 'IMPORTANT') | curses.A_BOLD
-                else:
-                    color = self.parent.theme_manager.findPair(self)
-            else:
-                if self.important or self.show_bold:
-                    color = curses.A_BOLD
-                else:
-                    color = curses.A_NORMAL
-            color = color | curses.A_STANDOUT | curses.A_BOLD | curses.A_DIM
+            color = self._get_color()
             while column <= (self.maximum_string_length - self.left_margin):
                 if not string_to_print or place_in_string > len(string_to_print) - 1:
                     if self.highlight_whole_widget:
@@ -136,6 +122,28 @@ class VisualTextField(npyscreen.Textfield):
         self.add_line(self.rely, self.relx, line, self.make_attributes_list(
             line, self.parent.theme_manager.findPair(
                 self, self.color) | curses.A_STANDOUT | curses.A_BOLD | curses.A_DIM), self.width)
+
+    def _get_color(self):
+        """
+        Get color.
+
+        :return:
+        """
+        if self.do_colors():
+            if self.show_bold and self.color == 'DEFAULT':
+                color = self.parent.theme_manager.findPair(self, 'BOLD') | curses.A_BOLD
+            elif self.show_bold:
+                color = self.parent.theme_manager.findPair(self, self.color) | curses.A_BOLD
+            elif self.important:
+                color = self.parent.theme_manager.findPair(self, 'IMPORTANT') | curses.A_BOLD
+            else:
+                color = self.parent.theme_manager.findPair(self)
+        else:
+            if self.important or self.show_bold:
+                color = curses.A_BOLD
+            else:
+                color = curses.A_NORMAL
+        return color | curses.A_STANDOUT | curses.A_BOLD | curses.A_DIM
 
 
 class RangeVisualTextField(VisualTextField):
@@ -244,3 +252,39 @@ class RangeVisualTextField(VisualTextField):
         """
         super(RangeVisualTextField, self).h_exit_mouse(_input)
         self.check_value()
+
+
+class ConcealedVisualTextField(VisualTextField):
+    """
+    Concealed text field (for passwords and sensitive info)
+    """
+    MASK_CHAR = "\u25CF"
+
+    def __init__(self, screen, *args, mask=MASK_CHAR, **kwargs):
+        self.screen = screen
+        kwargs["screen"] = screen
+        VisualTextField.__init__(self, *args, **kwargs)
+        self._mask = mask or self.MASK_CHAR
+        assert len(self._mask) == 1, "Mask is should be one character."
+
+    def _print(self):
+        """
+        Display value in the entry field.
+
+        :return:
+        """
+        self._field_space()
+        color = self._get_color()
+
+        strlen = len(self.value)
+        if self.maximum_string_length < strlen:
+            tmp_x = self.relx
+            for i in range(self.maximum_string_length):
+                self.parent.curses_pad.addch(self.rely, tmp_x, self._mask, color)
+                tmp_x += 1
+
+        else:
+            tmp_x = self.relx
+            for i in range(strlen):
+                self.parent.curses_pad.addstr(self.rely, tmp_x, self._mask, color)
+                tmp_x += 1
