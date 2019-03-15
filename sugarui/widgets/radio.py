@@ -140,6 +140,7 @@ class RadioChoice(npyscreen.MultiLine):
         """
         super(RadioChoice, self).update(clear=clear)
 
-        for idx, widget in enumerate(self._my_widgets):
-            widget.highlighted = self.cursor_line == idx and self.editing
-            widget.update()
+        if not clear:
+            for idx, widget in enumerate(self._my_widgets):
+                widget.highlighted = self.cursor_line == idx and self.editing
+                widget.update()
