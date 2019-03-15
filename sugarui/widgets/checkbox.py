@@ -48,6 +48,10 @@ class CheckBox(npyscreen.widget.Widget):
         :param clear:
         :return:
         """
+        if self.hidden and clear:
+            self.clear()
+            return
+
         super(CheckBox, self).update(clear=clear)
 
         state = curses.A_BOLD if self.editing else curses.A_NORMAL
