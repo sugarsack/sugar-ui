@@ -30,8 +30,8 @@ class WidgetHelp(npyscreen.widget.Widget):
                 self.label_max_width = label_max_width
             else:
                 self.label_max_width = len(self.label)
-            screen.add(npyscreen.Textfield, value=self.label, relx=kwargs["relx"], rely=kwargs["rely"],
-                       max_width=self.label_max_width + 1, color="CAUTION", editable=False)
+            self.w_label = screen.add(npyscreen.Textfield, value=self.label, relx=kwargs["relx"], rely=kwargs["rely"],
+                                      max_width=self.label_max_width + 1, color="CAUTION", editable=False)
             kwargs["relx"] = kwargs["relx"] + len(self.label) + 1
         del kwargs["screen"]
 
@@ -49,6 +49,31 @@ class WidgetHelp(npyscreen.widget.Widget):
                                       width=self.help_button_width, max_width=self.help_button_width)
         self.help_button.add_callback(self.on_help_button)
 
+    def hide(self):
+        """
+        Send hidden signal to itself and all contained widgets.
+
+        :return:
+        """
+        for widget in [self.w_label, self.control_widget, self.help_button]:
+            widget.hidden = True
+            widget.editing = False
+            widget.update(clear=True)
+        self.update(clear=True)
+        self.screen.display()
+
+    def show(self):
+        """
+        Send visible signal to itself and all contained widgets.
+
+        :return:
+        """
+        for widget in [self.w_label, self.control_widget, self.help_button]:
+            widget.hidden = False
+            widget.update()
+        self.update()
+        self.screen.display()
+
     def set_value(self, value):
         """
         This is a helper function that determines how to get to the inner object.
@@ -56,6 +81,7 @@ class WidgetHelp(npyscreen.widget.Widget):
         :param value:
         :return:
         """
+        # Just to avoid lots of imports for "isinstance".
         classname = self.control_widget.__class__.__name__
         if classname in ["VisualTextField", "Textfield", "TitleTextfield", "RangeVisualTextField"]:
             self.control_widget.value = str(value)
