@@ -25,7 +25,7 @@ class SystemOverviewForm(SugarForm):
         self.w_clients_list_header = self.add(TableHeader, title="Selected Clients",
                                               headers=["Hostname"], max_height=2, max_width=40, rely=1)
         self.w_clients_list = self.add(Table, relx=2, rely=3, max_width=39, max_height=h - 5)
-        self.w_clients_list.add_on_select_callback(self.set_hostname)
+        self.w_clients_list.add_on_select_callback(self.set_system_details)
 
         self.w_clients_div = self.add(TableDivider, relx=41, rely=1, max_width=1)
 
@@ -50,33 +50,34 @@ class SystemOverviewForm(SugarForm):
         tab.add_widget(npyscreen.BoxBasic, name="shit", relx=44, rely=5, max_height=5)
 
         self.tabs.align()
+        self.load_systems_data()
 
-        self.load_sample_data()
-
-    def set_hostname(self, value):
-        self.summary_tab.w_hostname.set_value(value[0])
-        self.summary_tab.w_hostname.update()
-        self.refresh()
-
-    def load_sample_data(self):
+    def load_systems_data(self):
         """
-        Load sample data.
-
+        Call API and load systems data.
         :return:
         """
-        self.summary_tab.w_hostname.set_value("web1.some.lan")
-        self.summary_tab.w_machine_id.set_value("234dfgdfgw3243242")
+        data = [(host, "online" if host.data["online"] else "offline") for host in self.api.systems.get_status()]
+        self.w_clients_list.load_data(data)
+        if data:
+            self.set_system_details(data[0])
+
+    def set_system_details(self, columns):
+        """
+        Set system details.
+
+        :param columns:
+        :return:
+        """
+        value = columns[0]
+        self.summary_tab.w_hostname.set_value(value.data["host"])
+        self.summary_tab.w_machine_id.set_value(value.data["id"])
         self.summary_tab.w_os.set_value("Linux")
 
-        self.summary_tab.w_uptodate.entry_widget.color = "CAUTIONHL"
-        self.summary_tab.w_uptodate.set_value(" UPDATES ")
+        self.summary_tab.w_uptodate.entry_widget.color = "VERYGOOD" # "CAUTIONHL"
+        self.summary_tab.w_uptodate.set_value(" Up to date ")
 
-        data = []
-        for hostname in ["zoo", "web1", "web2", "web3", "db1", "db2", "middleware", "auth", "kerb", "kerb1",
-                         "ldap", "ldap1", "backup", "backup1"]:
-            data.append(("{}.some.lan".format(hostname),))
-        self.w_clients_list.load_data(data)
-        self.w_clients_list.update()
+        self.refresh()
 
     def refresh(self):
         """
@@ -84,5 +85,8 @@ class SystemOverviewForm(SugarForm):
 
         :return:
         """
-        curr_height, curr_width = self.useable_space()
         super(SystemOverviewForm, self).refresh()
+
+        for widget in [self.summary_tab.w_hostname, self.summary_tab.w_machine_id,
+                       self.summary_tab.w_os, self.summary_tab.w_uptodate, self.w_clients_list]:
+            widget.update()

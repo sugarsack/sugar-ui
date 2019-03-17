@@ -10,6 +10,8 @@ from sugarui.windows.jobmanager import JobManager
 from sugarui.windows.sysoverview import SystemOverviewForm
 from sugarui.windows.statemanager import StateManagerForm
 from sugarui.windows.modrunner import ModuleRunnerForm
+from sugarui.apiconnector import SugarAPIClient
+from sugar.config import get_config
 
 
 class SugarUI(npyscreen.StandardApp):
@@ -22,6 +24,7 @@ class SugarUI(npyscreen.StandardApp):
         self._forms = [
             # (id, class, args, keywords, title, shortcut, classname)
         ]
+        self.api = SugarAPIClient(get_config())
 
     def register_form(self, fid, cls, *args, **keywords):
         """
@@ -54,7 +57,7 @@ class SugarUI(npyscreen.StandardApp):
         """
         for form_data in self._forms:
             fid, cls, args, kwargs = form_data[:4]
-            self.addForm(fid, cls, *args, **kwargs)
+            self.addForm(fid, cls, self.api, *args, **kwargs)
 
     def onStart(self):
         """

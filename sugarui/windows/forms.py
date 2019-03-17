@@ -22,9 +22,9 @@ class SugarForm(npyscreen.FormBaseNewWithMenus):
     # the name of the function "on_load_<lowercase-classname-of-the-form>" and
     # get its target form ID by referencing the function name in the "_form_id_map".
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, api, *args, **kwargs):
         npyscreen.FormBaseNewWithMenus.__init__(self, *args, **kwargs)
-
+        self.api = api
         self.handlers.update({
             "^Q": self.on_exit,
             "h": self.on_help,
