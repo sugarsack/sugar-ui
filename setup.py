@@ -43,6 +43,7 @@ setup(
     install_requires=[
         "npyscreen",
         "pyyaml",
+        "requests",
     ],
     include_package_data=True,
     classifiers=[
